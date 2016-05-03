@@ -1,4 +1,4 @@
-package com.vaadin.guice.security;
+package com.vaadin.guice.security.api;
 
 public interface PathAccessEvaluator {
     /**

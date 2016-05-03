@@ -10,6 +10,8 @@ import com.vaadin.guice.annotation.UIScope;
 import com.vaadin.guice.bus.UIEventBus;
 import com.vaadin.guice.providers.CurrentUIProvider;
 import com.vaadin.guice.security.annotation.RestrictedTo;
+import com.vaadin.guice.security.api.VisibilityManager;
+import com.vaadin.guice.security.api.PathAccessEvaluator;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.ui.Component;
 
@@ -18,11 +20,7 @@ import java.util.Set;
 
 @UIScope
 @GuiceViewChangeListener
-class PathBasedAccessControl implements ViewChangeListener {
-
-    PathBasedAccessControl(UIEventBus uiEventBus){
-        uiEventBus.register(this);
-    }
+class VisibilityManagerImpl implements ViewChangeListener, VisibilityManager {
 
     @Inject
     private Provider<Map<String, Set<Component>>> accessPathesToComponents;
@@ -39,7 +37,7 @@ class PathBasedAccessControl implements ViewChangeListener {
 
     private Optional<String> accessNeededForCurrentView = Optional.absent();
 
-    public void loginStateChanged() {
+    public void evaluateVisibility() {
         for (Map.Entry<String, Set<Component>> accessPathToComponentSet : accessPathesToComponents.get().entrySet()) {
             String accessPath = accessPathToComponentSet.getKey();
             Set<Component> components = accessPathToComponentSet.getValue();

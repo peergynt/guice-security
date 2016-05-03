@@ -8,6 +8,8 @@ import com.vaadin.guice.annotation.GuiceView;
 import com.vaadin.guice.annotation.UIModule;
 import com.vaadin.guice.security.annotation.AccessDeniedView;
 import com.vaadin.guice.security.annotation.RestrictedTo;
+import com.vaadin.guice.security.api.VisibilityManager;
+import com.vaadin.guice.security.api.PathAccessEvaluator;
 import com.vaadin.navigator.View;
 import com.vaadin.ui.Component;
 
@@ -43,7 +45,7 @@ public abstract class SecurityModule extends AbstractModule {
     protected void configure() {
         final Set<Class<?>> restrictedTypes = reflections.getTypesAnnotatedWith(RestrictedTo.class, true);
 
-        Multibinder<Component> restrictedComponentsMultibinder = newSetBinder(binder(), Component.class, RestrictedTo.class);
+        Multibinder<Component> restrictedComponentsMultibinder = newSetBinder(binder(), Component.class, AllRestrictedComponents.class);
 
         for (Class<?> restrictedType : restrictedTypes) {
             if (Component.class.isAssignableFrom(restrictedType)) {
@@ -77,6 +79,6 @@ public abstract class SecurityModule extends AbstractModule {
 
         bind(PathAccessEvaluator.class).to(getPathAccessEvaluatorClass());
 
-        bind(PathBasedAccessControl.class).asEagerSingleton();
+        bind(VisibilityManager.class).to(VisibilityManagerImpl.class);
     }
 }
