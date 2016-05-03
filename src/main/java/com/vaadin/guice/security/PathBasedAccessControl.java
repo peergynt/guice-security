@@ -7,20 +7,21 @@ import com.google.inject.name.Named;
 
 import com.vaadin.guice.annotation.GuiceViewChangeListener;
 import com.vaadin.guice.annotation.UIScope;
+import com.vaadin.guice.bus.UIEventBus;
+import com.vaadin.guice.providers.CurrentUIProvider;
 import com.vaadin.guice.security.annotation.RestrictedTo;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.UI;
 
 import java.util.Map;
 import java.util.Set;
 
 @UIScope
 @GuiceViewChangeListener
-public abstract class PathBasedAccessControl implements ViewChangeListener {
+class PathBasedAccessControl implements ViewChangeListener {
 
-    protected PathBasedAccessControl(){
-        loginStateChanged();
+    PathBasedAccessControl(UIEventBus uiEventBus){
+        uiEventBus.register(this);
     }
 
     @Inject
@@ -30,27 +31,31 @@ public abstract class PathBasedAccessControl implements ViewChangeListener {
     @Named("access_denied_view")
     private String accessDeniedViewTarget;
 
+    @Inject
+    private PathAccessEvaluator pathAccessEvaluator;
+
+    @Inject
+    private CurrentUIProvider currentUIProvider;
+
     private Optional<String> accessNeededForCurrentView = Optional.absent();
 
-    abstract boolean isAccessGranted(String accessPath);
-
-    protected void loginStateChanged(){
+    public void loginStateChanged() {
         for (Map.Entry<String, Set<Component>> accessPathToComponentSet : accessPathesToComponents.get().entrySet()) {
             String accessPath = accessPathToComponentSet.getKey();
             Set<Component> components = accessPathToComponentSet.getValue();
 
-            final boolean accessGranted = isAccessGranted(accessPath);
+            final boolean accessGranted = pathAccessEvaluator.isGranted(accessPath);
 
             for (Component component : components) {
                 component.setVisible(accessGranted);
             }
         }
 
-        if(accessNeededForCurrentView.isPresent()){
-            boolean accessToCurrentViewGranted = isAccessGranted(accessNeededForCurrentView.get());
+        if (accessNeededForCurrentView.isPresent()) {
+            boolean accessToCurrentViewGranted = pathAccessEvaluator.isGranted(accessNeededForCurrentView.get());
 
-            if(!accessToCurrentViewGranted){
-                UI.getCurrent().getNavigator().navigateTo(accessDeniedViewTarget);
+            if (!accessToCurrentViewGranted) {
+                currentUIProvider.get().getNavigator().navigateTo(accessDeniedViewTarget);
             }
         }
     }
@@ -58,7 +63,7 @@ public abstract class PathBasedAccessControl implements ViewChangeListener {
     public boolean beforeViewChange(ViewChangeEvent event) {
         final RestrictedTo restrictedTo = event.getNewView().getClass().getAnnotation(RestrictedTo.class);
 
-        if(restrictedTo == null){
+        if (restrictedTo == null) {
             accessNeededForCurrentView = Optional.absent();
             return true;
         }
@@ -67,10 +72,10 @@ public abstract class PathBasedAccessControl implements ViewChangeListener {
 
         accessNeededForCurrentView = Optional.of(accessPath);
 
-        boolean accessGranted = isAccessGranted(accessPath);
+        boolean accessGranted = pathAccessEvaluator.isGranted(accessPath);
 
-        if(!accessGranted){
-            UI.getCurrent().getNavigator().navigateTo(accessDeniedViewTarget);
+        if (!accessGranted) {
+            currentUIProvider.get().getNavigator().navigateTo(accessDeniedViewTarget);
         }
 
         return accessGranted;
@@ -80,6 +85,3 @@ public abstract class PathBasedAccessControl implements ViewChangeListener {
         ;
     }
 }
-
-
-

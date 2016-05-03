@@ -17,11 +17,13 @@ import static com.google.common.base.Preconditions.checkState;
 @UIScope
 class AccessPathsToComponentsProvider implements Provider<Map<String, Set<Component>>> {
 
+    private Map<String, Set<Component>> accessPathesToComponentsMap;
+
     @Inject
-    AccessPathsToComponentsProvider(@AllRestrictedComponents Set<Component> restrictedComponents){
+    AccessPathsToComponentsProvider(@AllRestrictedComponents Set<Component> restrictedComponents) {
         accessPathesToComponentsMap = new HashMap<String, Set<Component>>(restrictedComponents.size());
 
-        for(Component restrictedComponent: restrictedComponents){
+        for (Component restrictedComponent : restrictedComponents) {
             RestrictedTo restrictedTo = restrictedComponent.getClass().getAnnotation(RestrictedTo.class);
 
             checkState(restrictedTo != null);
@@ -30,7 +32,7 @@ class AccessPathsToComponentsProvider implements Provider<Map<String, Set<Compon
 
             Set<Component> components = accessPathesToComponentsMap.get(accessPath);
 
-            if(components == null){
+            if (components == null) {
                 components = new HashSet<Component>();
                 accessPathesToComponentsMap.put(accessPath, components);
             }
@@ -38,8 +40,6 @@ class AccessPathsToComponentsProvider implements Provider<Map<String, Set<Compon
             components.add(restrictedComponent);
         }
     }
-
-    private Map<String, Set<Component>> accessPathesToComponentsMap;
 
     public Map<String, Set<Component>> get() {
         return accessPathesToComponentsMap;

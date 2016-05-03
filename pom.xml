@@ -6,6 +6,9 @@
     <groupId>com.vaadin</groupId>
     <artifactId>guice-security</artifactId>
     <version>1.0-SNAPSHOT</version>
+    <build>
+        <sourceDirectory>src/main/java</sourceDirectory>
+    </build>
     <dependencies>
         <dependency>
             <groupId>com.vaadin</groupId>
