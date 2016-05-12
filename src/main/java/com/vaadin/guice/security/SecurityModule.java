@@ -5,7 +5,6 @@ import com.google.inject.TypeLiteral;
 import com.google.inject.multibindings.Multibinder;
 
 import com.vaadin.guice.annotation.GuiceView;
-import com.vaadin.guice.annotation.UIModule;
 import com.vaadin.guice.security.annotation.AccessDeniedView;
 import com.vaadin.guice.security.annotation.RestrictedTo;
 import com.vaadin.guice.security.api.VisibilityManager;
@@ -14,6 +13,7 @@ import com.vaadin.navigator.View;
 import com.vaadin.ui.Component;
 
 import org.reflections.Reflections;
+import org.reflections.util.ConfigurationBuilder;
 
 import java.util.Map;
 import java.util.Set;
@@ -30,13 +30,12 @@ import static com.google.inject.name.Names.named;
 *
 * </p>
 * */
-@UIModule
 public abstract class SecurityModule extends AbstractModule {
 
     private final Reflections reflections;
 
     protected SecurityModule(Reflections reflections) {
-        this.reflections = reflections;
+        this.reflections = reflections.merge(new Reflections(new ConfigurationBuilder().forPackages("com.vaadin.guice.security")));
     }
 
     protected abstract Class<? extends PathAccessEvaluator> getPathAccessEvaluatorClass();
