@@ -7,7 +7,6 @@ import com.google.inject.name.Named;
 
 import com.vaadin.guice.annotation.GuiceViewChangeListener;
 import com.vaadin.guice.annotation.UIScope;
-import com.vaadin.guice.bus.UIEventBus;
 import com.vaadin.guice.providers.CurrentUIProvider;
 import com.vaadin.guice.security.annotation.RestrictedTo;
 import com.vaadin.guice.security.api.VisibilityManager;
@@ -21,6 +20,8 @@ import java.util.Set;
 @UIScope
 @GuiceViewChangeListener
 class VisibilityManagerImpl implements ViewChangeListener, VisibilityManager {
+
+    private static final long serialVersionUID = 7130577225824856031L;
 
     @Inject
     private Provider<Map<String, Set<Component>>> accessPathesToComponents;

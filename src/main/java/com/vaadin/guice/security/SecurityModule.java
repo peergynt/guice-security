@@ -2,6 +2,7 @@ package com.vaadin.guice.security;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.TypeLiteral;
+import com.google.inject.matcher.Matchers;
 import com.google.inject.multibindings.Multibinder;
 
 import com.vaadin.guice.annotation.GuiceView;
@@ -79,5 +80,7 @@ public abstract class SecurityModule extends AbstractModule {
         bind(PathAccessEvaluator.class).to(getPathAccessEvaluatorClass());
 
         bind(VisibilityManager.class).to(VisibilityManagerImpl.class);
+
+        bindListener(Matchers.any(), new RestrictedTypeListener());
     }
 }
