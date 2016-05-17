@@ -16,7 +16,6 @@ import com.vaadin.navigator.View;
 import com.vaadin.ui.Component;
 
 import org.reflections.Reflections;
-import org.reflections.util.ConfigurationBuilder;
 
 import java.util.Set;
 
@@ -37,7 +36,7 @@ public abstract class SecurityModule extends AbstractModule {
     private final Reflections reflections;
 
     protected SecurityModule(Reflections reflections) {
-        this.reflections = reflections.merge(new Reflections(new ConfigurationBuilder().forPackages("com.vaadin.guice.security")));
+        this.reflections = reflections.merge(new Reflections("com.vaadin.guice.security"));
     }
 
     protected abstract Class<? extends PathAccessEvaluator> getPathAccessEvaluatorClass();
