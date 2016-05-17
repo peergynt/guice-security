@@ -1,6 +1,7 @@
 package com.vaadin.guice.security;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.SetMultimap;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
@@ -14,9 +15,6 @@ import com.vaadin.guice.security.api.PathAccessEvaluator;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.ui.Component;
 
-import java.util.Map;
-import java.util.Set;
-
 @UIScope
 @GuiceViewChangeListener
 class VisibilityManagerImpl implements ViewChangeListener, VisibilityManager {
@@ -24,7 +22,7 @@ class VisibilityManagerImpl implements ViewChangeListener, VisibilityManager {
     private static final long serialVersionUID = 7130577225824856031L;
 
     @Inject
-    private Provider<Map<String, Set<Component>>> accessPathesToComponents;
+    private Provider<SetMultimap<String, Component>> accessPathesToComponentsProvider;
 
     @Inject
     @Named("access_denied_view")
@@ -39,13 +37,10 @@ class VisibilityManagerImpl implements ViewChangeListener, VisibilityManager {
     private Optional<String> accessNeededForCurrentView = Optional.absent();
 
     public void evaluateVisibility() {
-        for (Map.Entry<String, Set<Component>> accessPathToComponentSet : accessPathesToComponents.get().entrySet()) {
-            String accessPath = accessPathToComponentSet.getKey();
-            Set<Component> components = accessPathToComponentSet.getValue();
-
+        SetMultimap<String, Component> accessPathesToComponents = accessPathesToComponentsProvider.get();
+        for (String accessPath: accessPathesToComponents.keySet()) {
             final boolean accessGranted = pathAccessEvaluator.isGranted(accessPath);
-
-            for (Component component : components) {
+            for (Component component : accessPathesToComponents.get(accessPath)) {
                 component.setVisible(accessGranted);
             }
         }

@@ -26,6 +26,6 @@ import java.lang.annotation.Target;
 @Retention(java.lang.annotation.RetentionPolicy.RUNTIME)
 @Documented
 @BindingAnnotation
-public @interface RestrictedComponent {
+public @interface RestrictedVisibility {
     String value();
 }

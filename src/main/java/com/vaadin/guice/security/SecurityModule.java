@@ -1,5 +1,6 @@
 package com.vaadin.guice.security;
 
+import com.google.common.collect.SetMultimap;
 import com.google.inject.AbstractModule;
 import com.google.inject.TypeLiteral;
 import com.google.inject.matcher.Matchers;
@@ -10,17 +11,17 @@ import com.vaadin.guice.security.annotation.AccessDeniedView;
 import com.vaadin.guice.security.annotation.RestrictedTo;
 import com.vaadin.guice.security.api.VisibilityManager;
 import com.vaadin.guice.security.api.PathAccessEvaluator;
+import com.vaadin.guice.security.api.RestrictedComponentHandler;
 import com.vaadin.navigator.View;
 import com.vaadin.ui.Component;
 
 import org.reflections.Reflections;
 import org.reflections.util.ConfigurationBuilder;
 
-import java.util.Map;
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.gwt.thirdparty.guava.common.collect.Iterables.get;
+import static com.google.common.collect.Iterables.get;
 import static com.google.inject.multibindings.Multibinder.newSetBinder;
 import static com.google.inject.name.Names.named;
 
@@ -55,8 +56,7 @@ public abstract class SecurityModule extends AbstractModule {
             }
         }
 
-        bind(new TypeLiteral<Map<String, Set<Component>>>() {
-        }).toProvider(AccessPathsToComponentsProvider.class);
+        bind(new TypeLiteral<SetMultimap<String, Component>>() {}).toProvider(AccessPathsToComponentsProvider.class);
 
         final Set<Class<?>> accessDeniedViews = reflections.getTypesAnnotatedWith(AccessDeniedView.class);
 
@@ -78,6 +78,8 @@ public abstract class SecurityModule extends AbstractModule {
         bind(String.class).annotatedWith(named("access_denied_view")).toInstance(accessDeniedTarget);
 
         bind(PathAccessEvaluator.class).to(getPathAccessEvaluatorClass());
+
+        bind(RestrictedComponentHandler.class).to(RestrictedComponentHandlerImpl.class);
 
         bind(VisibilityManager.class).to(VisibilityManagerImpl.class);
 

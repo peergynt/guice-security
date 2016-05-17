@@ -1,47 +1,25 @@
 package com.vaadin.guice.security;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-
 import com.vaadin.guice.annotation.UIScope;
-import com.vaadin.guice.security.annotation.RestrictedTo;
 import com.vaadin.ui.Component;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
-import static com.google.common.base.Preconditions.checkState;
-
 @UIScope
-class AccessPathsToComponentsProvider implements Provider<Map<String, Set<Component>>> {
+class AccessPathsToComponentsProvider implements Provider<SetMultimap<String, Component>> {
 
-    private Map<String, Set<Component>> accessPathesToComponentsMap;
+    // We are in the UI Scope, no need for concurrent map
+    private SetMultimap<String, Component> accessPathesToComponentsMap;
 
     @Inject
-    AccessPathsToComponentsProvider(@AllRestrictedComponents Set<Component> restrictedComponents) {
-        accessPathesToComponentsMap = new HashMap<String, Set<Component>>(restrictedComponents.size());
-
-        for (Component restrictedComponent : restrictedComponents) {
-            RestrictedTo restrictedTo = restrictedComponent.getClass().getAnnotation(RestrictedTo.class);
-
-            checkState(restrictedTo != null);
-
-            String accessPath = restrictedTo.value();
-
-            Set<Component> components = accessPathesToComponentsMap.get(accessPath);
-
-            if (components == null) {
-                components = new HashSet<Component>();
-                accessPathesToComponentsMap.put(accessPath, components);
-            }
-
-            components.add(restrictedComponent);
-        }
+    AccessPathsToComponentsProvider() {
+        accessPathesToComponentsMap = HashMultimap.create();
     }
 
-    public Map<String, Set<Component>> get() {
+    public SetMultimap<String, Component> get() {
         return accessPathesToComponentsMap;
     }
+
 }
