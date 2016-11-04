@@ -8,12 +8,12 @@ import com.google.inject.name.Named;
 
 import com.vaadin.guice.annotation.GuiceViewChangeListener;
 import com.vaadin.guice.annotation.UIScope;
-import com.vaadin.guice.providers.CurrentUIProvider;
 import com.vaadin.guice.security.annotation.RestrictedTo;
 import com.vaadin.guice.security.api.VisibilityManager;
 import com.vaadin.guice.security.api.PathAccessEvaluator;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.ui.Component;
+import com.vaadin.ui.UI;
 
 @UIScope
 @GuiceViewChangeListener
@@ -32,7 +32,7 @@ class VisibilityManagerImpl implements ViewChangeListener, VisibilityManager {
     private PathAccessEvaluator pathAccessEvaluator;
 
     @Inject
-    private CurrentUIProvider currentUIProvider;
+    private Provider<UI> currentUIProvider;
 
     private Optional<String> accessNeededForCurrentView = Optional.absent();
 
